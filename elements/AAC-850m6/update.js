@@ -561,16 +561,12 @@ var update = function(instance, properties, context) {
       if (properties.initial_content) {
         if (instance.data.current_bbcode !== properties.initial_content) {
           var initial_html = bbCodeToHTML(properties.initial_content);
-          console.log('about to dangerously paste html')
-          console.log($(quill.root).html())
-          console.log(initial_html)
           var current_selection = quill.getSelection()
           $(quill.root).html("");
           // Pasting the contents programmatically focuses the editor and sets
           // the cursor to the end, which breaks autobinding and is weird UX,
           // so restoring initial selection below
           quill.clipboard.dangerouslyPasteHTML(0, initial_html);
-          console.log($(quill.root).html())
           quill.setSelection(current_selection)
         }
         if(properties.overflow && !properties.initial_content.includes('[/img]')){
