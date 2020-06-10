@@ -562,12 +562,16 @@ var update = function(instance, properties, context) {
         if (instance.data.current_bbcode !== properties.initial_content) {
           var initial_html = bbCodeToHTML(properties.initial_content);
           var current_selection = quill.getSelection()
+          var scrollTop = window.scrollY
+          var scrollLeft = window.scrollX
           $(quill.root).html("");
           // Pasting the contents programmatically focuses the editor and sets
           // the cursor to the end, which breaks autobinding and is weird UX,
           // so restoring initial selection below
           quill.clipboard.dangerouslyPasteHTML(0, initial_html);
           quill.setSelection(current_selection)
+          // prevent paste-induced focus from autoscrolling to this position
+          window.scrollTo(scrollLeft, scrollTop)
         }
         if(properties.overflow && !properties.initial_content.includes('[/img]')){
           instance.setHeight(calculateHeight(quill,instance.data.initial_height, instance.data.toolbar_height));
