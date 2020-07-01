@@ -111,7 +111,7 @@
         "AAE": {
             "caption": "value",
             "initialization_code": {
-                "fn": "function(properties, context) {\n\treturn properties.initial_content || '';    \n}"
+                "fn": "function(properties, context) {\n\n\treturn properties.initial_content || ''; \n    \n}"
             },
             "name": "value",
             "value": "text"
@@ -119,7 +119,7 @@
         "AAg": {
             "caption": "value is valid",
             "initialization_code": {
-                "fn": "function(properties, context) {\n\treturn properties.empty === true && !properties.initial_content;\n}"
+                "fn": "function(properties, context) {\n\n\treturn properties.empty === true && !properties.initial_content;\n\n}"
             },
             "name": "value_is_valid",
             "value": "boolean"
@@ -127,7 +127,7 @@
         "AAx": {
             "caption": "field is focused",
             "initialization_code": {
-                "fn": "function(properties, context) {\n\treturn false;\n\n}"
+                "fn": "function(properties, context) {\n\n\treturn false;\n\n}"
             },
             "name": "field_is_focused",
             "value": "boolean"

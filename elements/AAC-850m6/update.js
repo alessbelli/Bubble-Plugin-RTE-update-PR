@@ -44,6 +44,8 @@ var update = function(instance, properties, context) {
     html = html.replace(/<iframe class="ql-video ql-align-(right|center|justify)" frameborder="0" allowfullscreen="true" src="(.*?)"><\/iframe>/gmi, '[$1]<iframe class="ql-video" frameborder="0" allowfullscreen="true" src="$2"></iframe>[/$1]');
     html = html.replace(/<h1(.*?)class="(.*?)ql-indent-([0-9])(.*?)"(.*?)>(.*?)<\/h1>/gmi, '<h1$1class="$2$4"$5>[indent data=$3]$6[/indent]</h1>');
     html = html.replace(/<h2(.*?)class="(.*?)ql-indent-([0-9])(.*?)"(.*?)>(.*?)<\/h2>/gmi, '<h2$1class="$2$4"$5>[indent data=$3]$6[/indent]</h2>');
+    html = html.replace(/<h3(.*?)class="(.*?)ql-indent-([0-9])(.*?)"(.*?)>(.*?)<\/h3>/gmi, '<h3$1class="$2$4"$5>[indent data=$3]$6[/indent]</h3>');
+    html = html.replace(/<h4(.*?)class="(.*?)ql-indent-([0-9])(.*?)"(.*?)>(.*?)<\/h4>/gmi, '<h4$1class="$2$4"$5>[indent data=$3]$6[/indent]</h4>');
     html = html.replace(/<blockquote(.*?)class="(.*?)ql-indent-([0-9])(.*?)"(.*?)>(.*?)<\/blockquote>/gmi, '<blockquote$1class="$2$4"$5>[indent data=$3]$6[/indent]</blockquote>');
     html = html.replace(/<p (.*?)class="(.*?)ql-indent-([0-9])(.*?)"(.*?)>(.*?)<\/p>/gmi, '<p $1class="$2$4"$5>[indent data=$3]$6[/indent]</p>');
 
@@ -89,7 +91,7 @@ var update = function(instance, properties, context) {
       result += "[/" + list_type + "][/ml]";
       return result;
     });
-
+              
     html = html.replace(/<img[^>]* src="(.*?)" style="cursor: nwse-resize;" width="(.*?)">/gi, "[img width=$2]$1[/img]");
     html = html.replace(/<img[^>]* src="(.*?)" style="" width="(.*?)">/gi, "[img width=$2]$1[/img]");
     html = html.replace(/<img[^>]* src="(.*?)" width="(.*?)">/gi, "[img width=$2]$1[/img]");
@@ -458,10 +460,9 @@ var update = function(instance, properties, context) {
           bubble_height = bubble_height - 15;
         }
         $(quill.root).parent().css('height', (bubble_height - toolbar_height) + "px");
+        $('.ql-header').addClass('regular-header-icon');
       } else {
-        $('.ql-header').each((index, element) => {
-          $(element).addClass('tooltip-header-icon');
-        });
+        $('.ql-header').addClass('tooltip-header-icon');
       }
 
       //add tooltips to icons for clarity
@@ -596,7 +597,15 @@ var update = function(instance, properties, context) {
     $('.ql-formats').on('click', () => {
       $(`#${instance.data.id}`).children().eq(3).hide();
     });
-
+      
+    //positions the image resize module correctly when scrolling
+    $(quill.root).on('scroll', () => {
+      var resize_obj = $(`#${instance.data.id}`).children()[3];
+      if (resize_obj && !resize_obj.hidden){
+        quill.theme.modules.imageResize.repositionElements();
+      }
+    });
+      
     quill = instance.data.quill;
 
     //handles text changes and blur events
@@ -619,11 +628,12 @@ var update = function(instance, properties, context) {
     }
 
     //bind on/off focus events
-    var rte_canvas = $(`#${instance.data.id}`).children().first()
-    rte_canvas.focus = () => {
+    var rte_canvas = $(`#${instance.data.id}`).children()[0];
+    rte_canvas.onfocus = () => {
       instance.publishState("field_is_focused", true);
     }
-    rte_canvas.blur = () => {
+
+    rte_canvas.onblur = () => {
       instance.publishState("field_is_focused", false);
       clearTimeout(typingTimer);
       if (instance.data.should_rerun_val) {
@@ -654,6 +664,7 @@ var update = function(instance, properties, context) {
 
       var base64ImageRegex = /<img[^>]* src="data:image\/(.*?)"(.*?)>/gi;
       var matches = rawhtml.match(base64ImageRegex) || [];
+        
       var img_change = false;
       if (matches.length !== instance.data.img_tracker) {
         img_change = true;
@@ -669,9 +680,10 @@ var update = function(instance, properties, context) {
       }
       var replace_base_64 = (file_extension, source) =>
         context.uploadContent(`richtext_content.${file_extension}`, source, (err, url) => {
+          var upload_width = $(quill.root).find(`img[src="data:image/${file_extension};base64,${source}"]`).css('width') || "";
           $(quill.root)
             .find(`img[src="data:image/${file_extension};base64,${source}"]`)
-            .attr('src', url);
+            .attr({'src': url, 'width': upload_width});
         });
       var fullMatch = base64ImageRegex.exec(rawhtml);
       var encoding, base64source;

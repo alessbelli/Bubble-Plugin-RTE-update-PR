@@ -1,3 +1,5 @@
 function(properties, context) {
-	return properties.initial_content || '';    
+
+	return properties.initial_content || ''; 
+    
 }
